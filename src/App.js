@@ -1,24 +1,42 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from "react";
+import api from "./api";
+import Users from "./components/Users";
+import SearchStatus from "./components/SearchStatus";
+import { Emptiness } from "./components/Emptiness";
 
 function App() {
+  const getUsersApi = api.users.fetchAll();
+  const [users, setUsers] = useState(getUsersApi);
+  let lengthUsers = users.length;
+
+  const handleDeleteUser = (userId) => {
+    const newUsers = [...users];
+    setUsers(newUsers.filter((user) => user._id !== userId));
+  };
+  const handleToggleBookMark = (id, bookmark) => {
+    const newUsers = [...users];
+    setUsers(
+      newUsers.map((el) =>
+        el._id === id && el.bookmark === bookmark
+          ? { ...el, bookmark: !el.bookmark }
+          : el
+      )
+    );
+  };
+
+  if (users.length === 0) {
+    return <Emptiness />;
+  }
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      <SearchStatus length={lengthUsers} />
+      <Users
+        users={users}
+        length={lengthUsers}
+        onDeleteUser={handleDeleteUser}
+        onToggleBookMark={handleToggleBookMark}
+      />
+    </>
   );
 }
 
